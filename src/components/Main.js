@@ -6,7 +6,12 @@ import {nanoid} from "nanoid"
 function Main() {
     //initialize dice in state
     const [dice, setDice] = React.useState(newDice())
+    React.useEffect(() => {
+        console.log('dice state changed')
+        checkEqual()
+    }, [dice])
 
+    const [tenzies, setTenzies] = React.useState(false)
     // create array of dice objects
     function newDice() {
         let dice = []
@@ -24,6 +29,19 @@ function Main() {
         }
         return dice
     }
+
+    function checkEqual(){
+        const valCheck = dice[0].value
+        for (let i=0; i<10; i++){
+            if (dice[i].value !== valCheck || dice[i].isHeld === false){
+                return
+            }
+        }
+        alert('winner')
+        return setTenzies(true)
+        
+    }
+
     // 
     function roll() {
         const oldTen = dice
