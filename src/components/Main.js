@@ -2,7 +2,6 @@ import Die from './Die'
 import React from 'react'
 import { nanoid } from "nanoid"
 
-// import useWindowSize from 'react-use/lib/useWindowSize'
 import Confetti from 'react-confetti'
 
 
@@ -12,12 +11,8 @@ function Main() {
     //initialize dice in state
     const [dice, setDice] = React.useState(newDice())
 
-
-
-
-
+    // check win condition every dice state change
     React.useEffect(() => {
-        console.log('dice state changed')
         checkEqual()
     }, [dice])
 
@@ -39,7 +34,7 @@ function Main() {
         }
         return dice
     }
-
+    // check if all dice are equal, win condition
     function checkEqual() {
         const valCheck = dice[0].value
         for (let i = 0; i < 10; i++) {
@@ -51,7 +46,7 @@ function Main() {
 
     }
 
-    // 
+    // generate 10 new dice if game is won, populate unheld dice with new dice
     function roll() {
         if (tenzies){
             setDice(newDice())
@@ -90,15 +85,29 @@ function Main() {
             return <Die key={die.id} value={die.value} isHeld={die.isHeld} holdDice={() => holdDice(die.id)} />
         }))
     }
+
+    // https://thewebdev.info/2021/11/20/how-to-conditionally-render-items-based-on-viewport-size-in-react/
+    const [screenIsDesktop, setScreenIsDesktop] = React.useState(window.innerWidth > 640)
+    const updateMedia = () =>{
+        setScreenIsDesktop(window.innerWidth > 640)
+    }
+    React.useEffect(() => {
+        window.addEventListener('resize', updateMedia)
+        return () => window.removeEventListener("resize", updateMedia);
+    })
+
     return (
         <main className='w-screen h-screen flex justify-center items-center'>
-            <div className='w-5/6 h-5/6 bg-gray-200 rounded-xl flex flex-col justify-center items-center'>
-                <h1 className='font-bold text-3xl mb-8'>Tenzies</h1>
-                <div className='grid grid-cols-2 gap-6 auto-cols-auto'>
+            <div className='bg-gray-200 rounded-xl flex flex-col justify-center items-center'>
+                <h1 className='font-bold text-3xl my-8 sm:mb-0'>Tenzies</h1>
+                {screenIsDesktop && 
+                <p className=' text-lg mt-4 mb-8 text-center'>Click a die to hold.<br /> Hold ten of the same die to win.</p>}
+                <div className='grid grid-cols-2 gap-6 auto-cols-auto mx-16
+                sm:grid-cols-5'>
                     {renderDice()}
                     {tenzies && <Confetti />}
                 </div>
-                <button onClick={roll} className=' bg-blue-600 text-white rounded-lg py-3 px-8 mt-8 text-xl font-semibold cursor-pointer'>{tenzies ? 'New Game': 'Roll'}</button>
+                <button onClick={roll} className=' bg-blue-600 text-white rounded-lg py-3 px-8 my-8 text-xl font-semibold cursor-pointer'>{tenzies ? 'New Game': 'Roll'}</button>
             </div>
         </main>
     )
