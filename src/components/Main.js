@@ -1,11 +1,21 @@
 import Die from './Die'
 import React from 'react'
-import {nanoid} from "nanoid"
+import { nanoid } from "nanoid"
+
+// import useWindowSize from 'react-use/lib/useWindowSize'
+import Confetti from 'react-confetti'
+
+
 
 
 function Main() {
     //initialize dice in state
     const [dice, setDice] = React.useState(newDice())
+
+
+
+
+
     React.useEffect(() => {
         console.log('dice state changed')
         checkEqual()
@@ -30,25 +40,30 @@ function Main() {
         return dice
     }
 
-    function checkEqual(){
+    function checkEqual() {
         const valCheck = dice[0].value
-        for (let i=0; i<10; i++){
-            if (dice[i].value !== valCheck || dice[i].isHeld === false){
+        for (let i = 0; i < 10; i++) {
+            if (dice[i].value !== valCheck || dice[i].isHeld === false) {
                 return
             }
         }
-        alert('winner')
         return setTenzies(true)
-        
+
     }
 
     // 
     function roll() {
+        if (tenzies){
+            setDice(newDice())
+            setTenzies(false)
+            return
+        }
+
         const oldTen = dice
         const newTen = newDice()
         let retDice = []
         let i = 0
-        while(i<10){
+        while (i < 10) {
             console.log(oldTen[i], newTen)
             oldTen[i].isHeld ? retDice.push(oldTen[i]) : retDice.push(newTen[i])
             i++
@@ -59,30 +74,31 @@ function Main() {
     // holdDie function
     function holdDice(id) {
         let oldDice = dice
-        const newDice = oldDice.map(die =>{
-            if (die.id === id){
+        const newDice = oldDice.map(die => {
+            if (die.id === id) {
                 let oldDieHeld = die.isHeld
-                return {...die, isHeld: !oldDieHeld}
+                return { ...die, isHeld: !oldDieHeld }
             }
-            else return {...die}
+            else return { ...die }
         })
         setDice(newDice)
     }
 
     //map data in state to Die components
-    function renderDice(){
-        return(dice.map(die => {
-            return <Die key={die.id} value={die.value} isHeld={die.isHeld} holdDice={() => holdDice(die.id)}/>
+    function renderDice() {
+        return (dice.map(die => {
+            return <Die key={die.id} value={die.value} isHeld={die.isHeld} holdDice={() => holdDice(die.id)} />
         }))
     }
     return (
         <main className='w-screen h-screen flex justify-center items-center'>
             <div className='w-5/6 h-5/6 bg-gray-200 rounded-xl flex flex-col justify-center items-center'>
                 <h1 className='font-bold text-3xl mb-8'>Tenzies</h1>
-                <div className='grid grid-cols-2 gap-6 auto-cols-auto'> 
+                <div className='grid grid-cols-2 gap-6 auto-cols-auto'>
                     {renderDice()}
+                    {tenzies && <Confetti />}
                 </div>
-                <button onClick={roll} className=' bg-blue-600 text-white rounded-lg py-3 px-8 mt-8 text-xl font-semibold cursor-pointer'>Roll</button>
+                <button onClick={roll} className=' bg-blue-600 text-white rounded-lg py-3 px-8 mt-8 text-xl font-semibold cursor-pointer'>{tenzies ? 'New Game': 'Roll'}</button>
             </div>
         </main>
     )
